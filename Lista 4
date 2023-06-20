@@ -1,0 +1,459 @@
+#include <stdio.h>
+#include <string.h>
+
+const int MAX_FABRICANTES = 5;
+const int MAX_PRODUTOS = 50;
+const int MAX_UF = 27;
+
+typedef struct {
+    char fabricante[50];
+    char site[100];
+    char telefone[15];
+    char uf[3];
+} Fabricante;
+
+typedef struct {
+    char descricao[100];
+    float peso;
+    float valor_compra;
+    float valor_venda;
+    float valor_lucro;
+    float percentual_lucro;
+    Fabricante fabricante;
+} Produto;
+
+void cadastrar_fabricantes(Fabricante fabricantes[], int *num_fabricantes);
+void cadastrar_produtos(Produto produtos[], int *num_produtos, Fabricante fabricantes[], int num_fabricantes);
+void listar_fabricantes(Fabricante fabricantes[], int num_fabricantes);
+void listar_produtos(Produto produtos[], int num_produtos);
+void listar_produtos_por_estado(Produto produtos[], int num_produtos);
+void listar_produtos_por_fabricante(Produto produtos[], int num_produtos, Fabricante fabricantes[], int num_fabricantes);
+void produto_mais_caro_por_estado(Produto produtos[], int num_produtos);
+void fabricante_produto_mais_barato(Produto produtos[], int num_produtos);
+void listar_produtos_valor_crescente(Produto produtos[], int num_produtos);
+void listar_produtos_lucro_crescente(Produto produtos[], int num_produtos);
+void listar_produtos_percentual_lucro_crescente(Produto produtos[], int num_produtos);
+
+int main() {
+
+    Fabricante fabricantes[MAX_FABRICANTES];
+    Produto produtos[MAX_PRODUTOS];
+    int num_fabricantes = 0;
+    int num_produtos = 0;
+    int opcao;
+    int i;
+
+    do {
+        printf("\nMENU PRINCIPAL\n");
+        printf("1 - Cadastrar fabricantes\n");
+        printf("2 - Cadastrar produtos\n");
+        printf("3 - Listar todas os fabricantes\n");
+        printf("4 - Listar todos os produtos\n");
+        printf("5 - Listar os produtos de um determinado estado\n");
+        printf("6 - Listar os produtos de um determinado fabricante\n");
+        printf("7 - Apresentar o(s) estado(s) onde esta registrado o produto mais caro\n");
+        printf("8 - Apresentar o(s) fabricante(s) onde esta registrado o produto mais barato\n");
+        printf("9 - Listar os todos os produtos em ordem crescente no valor\n");
+        printf("10 - Listar os todos os produtos em ordem crescente de maior valor do lucro\n");
+        printf("11 - Listar os todos os produtos em ordem crescente de maior percentual de lucro\n");
+        printf("0 - Sair do programa\n");
+        printf("Digite a opcao desejada: ");
+        scanf("%d", &opcao);
+        getchar();
+
+        switch (opcao) {
+            case 1:
+                cadastrar_fabricantes(fabricantes, &num_fabricantes);
+                break;
+            case 2:
+                cadastrar_produtos(produtos, &num_produtos, fabricantes, num_fabricantes);
+                break;
+            case 3:
+                listar_fabricantes(fabricantes, num_fabricantes);
+                break;
+            case 4:
+                listar_produtos(produtos, num_produtos);
+                break;
+            case 5:
+                listar_produtos_por_estado(produtos, num_produtos);
+                break;
+            case 6:
+                listar_produtos_por_fabricante(produtos, num_produtos, fabricantes, num_fabricantes);
+                break;
+            case 7:
+                produto_mais_caro_por_estado(produtos, num_produtos);
+                break;
+            case 8:
+                fabricante_produto_mais_barato(produtos, num_produtos);
+                break;
+            case 9:
+                listar_produtos_valor_crescente(produtos, num_produtos);
+                break;
+            case 10:
+                listar_produtos_lucro_crescente(produtos, num_produtos);
+                break;
+            case 11:
+                listar_produtos_percentual_lucro_crescente(produtos, num_produtos);
+                break;
+            case 0:
+                printf("Encerrando o programa...\n");
+                break;
+            default:
+                printf("Opcao invalida!\n");
+                break;
+        }
+    } while (opcao != 0);
+
+    return 0;
+}
+
+void cadastrar_fabricantes(Fabricante fabricantes[], int *num_fabricantes) {
+    if (*num_fabricantes >= MAX_FABRICANTES) {
+        printf("Limite de fabricantes atingido!\n");
+        return;
+    }
+
+    printf("CADASTRO DE FABRICANTES\n");
+
+    printf("Nome do fabricante: ");
+    fgets(fabricantes[*num_fabricantes].fabricante, sizeof(fabricantes[*num_fabricantes].fabricante), stdin);
+    fabricantes[*num_fabricantes].fabricante[strcspn(fabricantes[*num_fabricantes].fabricante, "\n")] = '\0';
+
+    printf("Nome do site: ");
+    fgets(fabricantes[*num_fabricantes].site, sizeof(fabricantes[*num_fabricantes].site), stdin);
+    fabricantes[*num_fabricantes].site[strcspn(fabricantes[*num_fabricantes].site, "\n")] = '\0';
+
+    printf("Digite o telefone: ");
+    fgets(fabricantes[*num_fabricantes].telefone, sizeof(fabricantes[*num_fabricantes].telefone), stdin);
+    fabricantes[*num_fabricantes].telefone[strcspn(fabricantes[*num_fabricantes].telefone, "\n")] = '\0';
+
+    printf("Digite a UF: ");
+    fgets(fabricantes[*num_fabricantes].uf, sizeof(fabricantes[*num_fabricantes].uf), stdin);
+    fabricantes[*num_fabricantes].uf[strcspn(fabricantes[*num_fabricantes].uf, "\n")] = '\0';
+
+    (*num_fabricantes)++;
+}
+
+void cadastrar_produtos(Produto produtos[], int *num_produtos, Fabricante fabricantes[], int num_fabricantes) {
+    if (*num_produtos >= MAX_PRODUTOS) {
+        printf("Limite de produtos atingido!\n");
+        return;
+    }
+
+    printf("CADASTRO DE PRODUTOS\n");
+
+    printf("Digite a descricao: ");
+    fgets(produtos[*num_produtos].descricao, sizeof(produtos[*num_produtos].descricao), stdin);
+    produtos[*num_produtos].descricao[strcspn(produtos[*num_produtos].descricao, "\n")] = '\0';
+
+    printf("Digite o peso: ");
+    scanf("%f", &produtos[*num_produtos].peso);
+    getchar();
+
+    printf("Digite o valor de compra: ");
+    scanf("%f", &produtos[*num_produtos].valor_compra);
+    getchar();
+
+    printf("Digite o valor de venda: ");
+    scanf("%f", &produtos[*num_produtos].valor_venda);
+    getchar();
+
+    produtos[*num_produtos].valor_lucro = produtos[*num_produtos].valor_venda - produtos[*num_produtos].valor_compra;
+    produtos[*num_produtos].percentual_lucro = (produtos[*num_produtos].valor_lucro / produtos[*num_produtos].valor_compra) * 100;
+
+    printf("Digite o fabricante: ");
+    fgets(produtos[*num_produtos].fabricante.fabricante, sizeof(produtos[*num_produtos].fabricante.fabricante), stdin);
+    produtos[*num_produtos].fabricante.fabricante[strcspn(produtos[*num_produtos].fabricante.fabricante, "\n")] = '\0';
+
+    int fabricante_encontrado = 0;
+    int i;
+    for (i = 0; i < num_fabricantes; i++) {
+        if (strcmp(produtos[*num_produtos].fabricante.fabricante, fabricantes[i].fabricante) == 0) {
+            strcpy(produtos[*num_produtos].fabricante.site, fabricantes[i].site);
+            strcpy(produtos[*num_produtos].fabricante.telefone, fabricantes[i].telefone);
+            strcpy(produtos[*num_produtos].fabricante.uf, fabricantes[i].uf);
+            fabricante_encontrado = 1;
+            break;
+        }
+    }
+
+    if (!fabricante_encontrado) {
+        printf("Fabricante nao encontrado!\n");
+        strcpy(produtos[*num_produtos].fabricante.site, "N/A");
+        strcpy(produtos[*num_produtos].fabricante.telefone, "N/A");
+        strcpy(produtos[*num_produtos].fabricante.uf, "N/A");
+    }
+
+    (*num_produtos)++;
+}
+
+void listar_fabricantes(Fabricante fabricantes[], int num_fabricantes) {
+    if (num_fabricantes == 0) {
+        printf("Nenhum fabricante cadastrado!\n");
+        return;
+    }
+
+    printf("LISTA DE FABRICANTES\n");
+	
+	int i;
+    for (i = 0; i < num_fabricantes; i++) {
+        printf("%d - Fabricante: %s\n", i + 1, fabricantes[i].fabricante);
+    }
+}
+
+void listar_produtos(Produto produtos[], int num_produtos) {
+    if (num_produtos == 0) {
+        printf("Nenhum produto cadastrado!\n");
+        return;
+    }
+
+    printf("LISTA DE PRODUTOS\n");
+	
+	int i;
+    for (i = 0; i < num_produtos; i++) {
+        printf("Produto %d\n", i + 1);
+        printf("Descricao: %s\n", produtos[i].descricao);
+        printf("Peso: %.2f\n", produtos[i].peso);
+        printf("Valor de compra: %.2f\n", produtos[i].valor_compra);
+        printf("Valor de venda: %.2f\n", produtos[i].valor_venda);
+        printf("Valor do lucro: %.2f\n", produtos[i].valor_lucro);
+        printf("Percentual de lucro: %.2f%%\n", produtos[i].percentual_lucro);
+        printf("Fabricante: %s\n", produtos[i].fabricante.fabricante);
+        printf("Site do fabricante: %s\n", produtos[i].fabricante.site);
+        printf("Telefone do fabricante: %s\n", produtos[i].fabricante.telefone);
+        printf("UF do fabricante: %s\n", produtos[i].fabricante.uf);
+        printf("\n");
+    }
+}
+
+void listar_produtos_por_estado(Produto produtos[], int num_produtos) {
+    char uf[3];
+    int produtos_encontrados = 0;
+
+    printf("Digite a UF: ");
+    fgets(uf, sizeof(uf), stdin);
+    uf[strcspn(uf, "\n")] = '\0';
+
+    printf("LISTA DE PRODUTOS DO ESTADO %s\n", uf);
+
+	int i;
+    for (i = 0; i < num_produtos; i++) {
+        if (strcmp(produtos[i].fabricante.uf, uf) == 0) {
+            printf("Produto %d\n", produtos_encontrados + 1);
+            printf("Descricao: %s\n", produtos[i].descricao);
+            printf("Peso: %.2f\n", produtos[i].peso);
+            printf("Valor de compra: %.2f\n", produtos[i].valor_compra);
+            printf("Valor de venda: %.2f\n", produtos[i].valor_venda);
+            printf("Valor do lucro: %.2f\n", produtos[i].valor_lucro);
+            printf("Percentual de lucro: %.2f%%\n", produtos[i].percentual_lucro);
+            printf("Fabricante: %s\n", produtos[i].fabricante.fabricante);
+            printf("Site do fabricante: %s\n", produtos[i].fabricante.site);
+            printf("Telefone do fabricante: %s\n", produtos[i].fabricante.telefone);
+            printf("UF do fabricante: %s\n", produtos[i].fabricante.uf);
+            printf("\n");
+            produtos_encontrados++;
+        }
+    }
+
+    if (produtos_encontrados == 0) {
+        printf("Nenhum produto encontrado no estado %s!\n", uf);
+    }
+}
+
+void listar_produtos_por_fabricante(Produto produtos[], int num_produtos, Fabricante fabricantes[], int num_fabricantes) {
+    char fabricante[50];
+    int produtos_encontrados = 0;
+
+    printf("Digite o fabricante: ");
+    fgets(fabricante, sizeof(fabricante), stdin);
+    fabricante[strcspn(fabricante, "\n")] = '\0';
+
+    printf("LISTA DE PRODUTOS DO FABRICANTE %s\n", fabricante);
+	
+	int i;
+    for (i = 0; i < num_produtos; i++) {
+        if (strcmp(produtos[i].fabricante.fabricante, fabricante) == 0) {
+            printf("Produto %d\n", produtos_encontrados + 1);
+            printf("Descricao: %s\n", produtos[i].descricao);
+            printf("Peso: %.2f\n", produtos[i].peso);
+            printf("Valor de compra: %.2f\n", produtos[i].valor_compra);
+            printf("Valor de venda: %.2f\n", produtos[i].valor_venda);
+            printf("Valor do lucro: %.2f\n", produtos[i].valor_lucro);
+            printf("Percentual de lucro: %.2f%%\n", produtos[i].percentual_lucro);
+            printf("Fabricante: %s\n", produtos[i].fabricante.fabricante);
+            printf("Site do fabricante: %s\n", produtos[i].fabricante.site);
+            printf("Telefone do fabricante: %s\n", produtos[i].fabricante.telefone);
+            printf("UF do fabricante: %s\n", produtos[i].fabricante.uf);
+            printf("\n");
+            produtos_encontrados++;
+        }
+    }
+
+    if (produtos_encontrados == 0) {
+        printf("Nenhum produto encontrado do fabricante %s!\n", fabricante);
+    }
+}
+
+void produto_mais_caro_por_estado(Produto produtos[], int num_produtos) {
+    char estado[MAX_UF];
+    float maior_valor = 0;
+
+    printf("Digite o estado: ");
+    fgets(estado, sizeof(estado), stdin);
+    estado[strcspn(estado, "\n")] = '\0';
+	
+	int i;
+    for (i = 0; i < num_produtos; i++) {
+        if (strcmp(produtos[i].fabricante.uf, estado) == 0) {
+            if (produtos[i].valor_venda > maior_valor) {
+                maior_valor = produtos[i].valor_venda;
+            }
+        }
+    }
+
+    if (maior_valor == 0) {
+        printf("Nao existem produtos cadastrados para o estado %s!\n", estado);
+    } else {
+        printf("O(s) produto(s) mais caro(s) registrado(s) no estado %s:\n", estado);
+        int i;
+		for (i = 0; i < num_produtos; i++) {
+            if (strcmp(produtos[i].fabricante.uf, estado) == 0 && produtos[i].valor_venda == maior_valor) {
+                printf("Descricao: %s\n", produtos[i].descricao);
+                printf("Peso: %.2f\n", produtos[i].peso);
+                printf("Valor de compra: %.2f\n", produtos[i].valor_compra);
+                printf("Valor de venda: %.2f\n", produtos[i].valor_venda);
+                printf("Valor do lucro: %.2f\n", produtos[i].valor_lucro);
+                printf("Percentual de lucro: %.2f%%\n", produtos[i].percentual_lucro);
+                printf("Fabricante: %s\n", produtos[i].fabricante.fabricante);
+                printf("Site do fabricante: %s\n", produtos[i].fabricante.site);
+                printf("Telefone do fabricante: %s\n", produtos[i].fabricante.telefone);
+                printf("UF do fabricante: %s\n", produtos[i].fabricante.uf);
+                printf("\n");
+            }
+        }
+    }
+}
+
+void fabricante_produto_mais_barato(Produto produtos[], int num_produtos) {
+    float menor_valor = produtos[0].valor_venda;
+
+	int i;
+    for (i = 1; i < num_produtos; i++) {
+        if (produtos[i].valor_venda < menor_valor) {
+            menor_valor = produtos[i].valor_venda;
+        }
+    }
+
+    printf("O fabricante do produto mais barato(s):\n");
+
+    for (i = 0; i < num_produtos; i++) {
+        if (produtos[i].valor_venda == menor_valor) {
+            printf("Fabricante: %s\n", produtos[i].fabricante.fabricante);
+            printf("Site do fabricante: %s\n", produtos[i].fabricante.site);
+            printf("Telefone do fabricante: %s\n", produtos[i].fabricante.telefone);
+            printf("UF do fabricante: %s\n", produtos[i].fabricante.uf);
+            printf("\n");
+        }
+    }
+}
+
+void listar_produtos_valor_crescente(Produto produtos[], int num_produtos) {
+    Produto temp;
+
+	int i;
+	int j;
+	
+    for (i = 0; i < num_produtos - 1; i++) {
+        for (j = i + 1; j < num_produtos; j++) {
+            if (produtos[i].valor_venda > produtos[j].valor_venda) {
+                temp = produtos[i];
+                produtos[i] = produtos[j];
+                produtos[j] = temp;
+            }
+        }
+    }
+
+    printf("LISTA DE PRODUTOS EM ORDEM CRESCENTE DE VALOR\n");
+
+    for (i = 0; i < num_produtos; i++) {
+        printf("Produto %d\n", i + 1);
+        printf("Descricao: %s\n", produtos[i].descricao);
+        printf("Peso: %.2f\n", produtos[i].peso);
+        printf("Valor de compra: %.2f\n", produtos[i].valor_compra);
+        printf("Valor de venda: %.2f\n", produtos[i].valor_venda);
+        printf("Valor do lucro: %.2f\n", produtos[i].valor_lucro);
+        printf("Percentual de lucro: %.2f%%\n", produtos[i].percentual_lucro);
+        printf("Fabricante: %s\n", produtos[i].fabricante.fabricante);
+        printf("Site do fabricante: %s\n", produtos[i].fabricante.site);
+        printf("Telefone do fabricante: %s\n", produtos[i].fabricante.telefone);
+        printf("UF do fabricante: %s\n", produtos[i].fabricante.uf);
+        printf("\n");
+    }
+}
+
+void listar_produtos_lucro_crescente(Produto produtos[], int num_produtos) {
+    Produto temp;
+
+	int i;
+	int j;
+    for (i = 0; i < num_produtos - 1; i++) {
+        for (j = i + 1; j < num_produtos; j++) {
+            if (produtos[i].valor_lucro > produtos[j].valor_lucro) {
+                temp = produtos[i];
+                produtos[i] = produtos[j];
+                produtos[j] = temp;
+            }
+        }
+    }
+
+    printf("LISTA DE PRODUTOS EM ORDEM CRESCENTE DE LUCRO\n");
+
+    for (i = 0; i < num_produtos; i++) {
+        printf("Produto %d\n", i + 1);
+        printf("Descricao: %s\n", produtos[i].descricao);
+        printf("Peso: %.2f\n", produtos[i].peso);
+        printf("Valor de compra: %.2f\n", produtos[i].valor_compra);
+        printf("Valor de venda: %.2f\n", produtos[i].valor_venda);
+        printf("Valor do lucro: %.2f\n", produtos[i].valor_lucro);
+        printf("Percentual de lucro: %.2f%%\n", produtos[i].percentual_lucro);
+        printf("Fabricante: %s\n", produtos[i].fabricante.fabricante);
+        printf("Site do fabricante: %s\n", produtos[i].fabricante.site);
+        printf("Telefone do fabricante: %s\n", produtos[i].fabricante.telefone);
+        printf("UF do fabricante: %s\n", produtos[i].fabricante.uf);
+        printf("\n");
+    }
+}
+
+void listar_produtos_percentual_lucro_crescente(Produto produtos[], int num_produtos) {
+    Produto temp;
+	int i;
+	int j;
+	for (i = 0; i < num_produtos - 1; i++) {
+        for (j = i + 1; j < num_produtos; j++) {
+            if (produtos[i].percentual_lucro > produtos[j].percentual_lucro) {
+                temp = produtos[i];
+                produtos[i] = produtos[j];
+                produtos[j] = temp;
+            }
+        }
+    }
+
+    printf("LISTA DE PRODUTOS EM ORDEM CRESCENTE DE PERCENTUAL DE LUCRO\n");
+
+    for (i = 0; i < num_produtos; i++) {
+        printf("Produto %d\n", i + 1);
+        printf("Descricao: %s\n", produtos[i].descricao);
+        printf("Peso: %.2f\n", produtos[i].peso);
+        printf("Valor de compra: %.2f\n", produtos[i].valor_compra);
+        printf("Valor de venda: %.2f\n", produtos[i].valor_venda);
+        printf("Valor do lucro: %.2f\n", produtos[i].valor_lucro);
+        printf("Percentual de lucro: %.2f%%\n", produtos[i].percentual_lucro);
+        printf("Fabricante: %s\n", produtos[i].fabricante.fabricante);
+        printf("Site do fabricante: %s\n", produtos[i].fabricante.site);
+        printf("Telefone do fabricante: %s\n", produtos[i].fabricante.telefone);
+        printf("UF do fabricante: %s\n", produtos[i].fabricante.uf);
+        printf("\n");
+    }
+}
+
+ 
